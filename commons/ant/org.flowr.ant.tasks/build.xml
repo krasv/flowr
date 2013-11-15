@@ -1,0 +1,47 @@
+<project name="build" default="jar" basedir=".">
+
+	<property name="src.dir" value="${basedir}/src/main/java" />
+	<property name="resources.dir" value="${basedir}/src/main/resources" />
+	<property name="bin.dir" value="${basedir}/build" />
+	<property name="target" value="${basedir}/dist/ant-flowr" />
+
+	<target name="env">
+		<path id="plugin.cp">
+			<fileset dir="${eclipse.home}/plugins">
+				<include name="**/org.eclipse.pde.core_3.5*.jar"/>
+				<include name="**/org.eclipse.core.runtime_3.5.*.jar"/>
+				<include name="**/org.eclipse.core.jobs_3.4.*.jar"/>
+				<include name="**/org.eclipse.equinox.common_3.5.*.jar"/>
+				<include name="**/org.eclipse.osgi_3.5.*.jar"/>
+			</fileset>
+			<fileset dir="${basedir}/lib">
+				<include name="*.jar" />
+			</fileset>
+		</path>
+	</target>
+
+	<target name="compile" depends="env">
+		<delete dir="${bin.dir}" failonerror="false" />
+		<mkdir dir="${bin.dir}" />
+		<javac srcdir="${src.dir}" destdir="${bin.dir}" debug="on">
+			<classpath>
+				<pathelement location="${ant.core.lib}" />
+				<path refid="plugin.cp" />
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar destfile="${target}.jar">
+			<fileset dir="${bin.dir}" />
+			<fileset dir="${resources.dir}" />
+		</jar>
+		<zip destfile="${target}-src.zip">
+			<zipfileset dir="${src.dir}" prefix="src/main/java" />
+			<zipfileset dir="${resources.dir}" prefix="src/main/resources" />
+			<fileset dir="${basedir}">
+				<include name="build.xml"/>
+			</fileset>
+		</zip>
+	</target>
+</project>

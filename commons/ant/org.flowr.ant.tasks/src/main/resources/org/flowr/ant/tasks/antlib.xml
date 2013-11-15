@@ -1,0 +1,7 @@
+<antlib>
+	<taskdef name="leadString" classname="org.flowr.ant.tasks.LeadStringTask"/>
+	<taskdef name="tailString" classname="org.flowr.ant.tasks.TailStringTask"/>
+	<taskdef name="subString" classname="org.flowr.ant.tasks.SubStringTask"/>
+	<taskdef name="exportFeature" classname="org.flowr.ant.tasks.JNLPFeatureExportTask"/>
+	<taskdef name="includeFeature" classname="org.flowr.ant.tasks.IncludeFeatureTask"/>
+</antlib>
