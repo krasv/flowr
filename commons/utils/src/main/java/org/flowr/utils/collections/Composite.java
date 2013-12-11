@@ -9,10 +9,13 @@ package org.flowr.utils.collections;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+
+import org.flowr.utils.JavaUtils;
 
 /**
  * @author krausesv
@@ -126,7 +129,39 @@ public class Composite<T> implements Iterable<Composite<?>> {
 	}
 
 	/**
-	 * gets a list of all direct and nested children
+	 * sorts the children using the given comparator or an standard comparator
+	 * comparing the value objects of the children composite elements using
+	 * method {@link JavaUtils#compare(Object, Object)}.
+	 * 
+	 * @param comparator
+	 */
+	public void sortChildren(Comparator<Composite<?>> comparator) {
+		if (comparator == null) {
+			comparator = new Comparator<Composite<?>>() {
+
+				@Override
+				public int compare(Composite<?> c1, Composite<?> c2) {
+					return JavaUtils.compare(c1.getObject(), c2.getObject());
+				}
+			};
+		}
+		Collections.sort(children, comparator);
+	}
+
+	/**
+	 * sorts the direct and nested children using the given comparator
+	 * 
+	 * @param comparator
+	 */
+	public void sortAllChildren(Comparator<Composite<?>> comparator) {
+		List<Composite<?>> allChildren = new ArrayList<Composite<?>>(getAllChildren());
+		for (Composite<?> node : allChildren) {
+			node.sortChildren(comparator);
+		}
+	}
+
+	/**
+	 * gets a list of all this component, its direct and nested children
 	 */
 	public List<Composite<?>> getAllChildren() {
 		List<Composite<?>> resultList = new ArrayList<Composite<?>>();
@@ -285,7 +320,8 @@ public class Composite<T> implements Iterable<Composite<?>> {
 	}
 
 	/**
-	 * gets an typed iterator casting all children, to the same type as this composites type. 
+	 * gets an typed iterator casting all children, to the same type as this
+	 * composites type.
 	 */
 	public <IT> Iterable<IT> asSingleTypeIterable() {
 		final Iterator<Composite<?>> it = this.iterator();
