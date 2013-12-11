@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
-import org.flowr.utils.IFilter;
-
 /**
  * @author krausesv
  * 
@@ -30,7 +28,15 @@ public class Composite<T> implements Iterable<Composite<?>> {
 	private Composite<?> parent;
 
 	private List<Composite<?>> children = new ArrayList<Composite<?>>();
-	
+
+	/**
+	 * value constructor
+	 * 
+	 * @param parent
+	 *            the composites parent node.
+	 * @param object
+	 *            the composites value object.
+	 */
 	public Composite(Composite<?> parent, T object) {
 		this.parent = parent;
 		this.object = object;
@@ -39,13 +45,23 @@ public class Composite<T> implements Iterable<Composite<?>> {
 		}
 	}
 
-	public Object getAdapter(Class<?> adapter) {
+	/**
+	 * gets the value object, if its assignable to the given adapter type
+	 * 
+	 * @param adapter
+	 *            the expected value type
+	 * @return the composites value instance, if its assignable to the given
+	 *         adapter type.
+	 */
+	public <C> C getAdapter(Class<C> adapter) {
 		if (adapter == null)
 			throw new NullPointerException("adapter must not be null");
 
 		T o = getObject();
 		if (o != null && adapter.isAssignableFrom(o.getClass())) {
-			return o;
+			@SuppressWarnings("unchecked")
+			C value = (C) o;
+			return value;
 		}
 		return null;
 	}
@@ -108,14 +124,45 @@ public class Composite<T> implements Iterable<Composite<?>> {
 	public List<Composite<?>> getChildren() {
 		return Collections.unmodifiableList(children);
 	}
-	
+
+	/**
+	 * gets a list of all direct and nested children
+	 */
+	public List<Composite<?>> getAllChildren() {
+		List<Composite<?>> resultList = new ArrayList<Composite<?>>();
+		for (Composite<?> composite : this) {
+			resultList.add(composite);
+		}
+		return resultList;
+	}
+
+	/**
+	 * gets a list of all direct children, where the child type is an instance
+	 * of the given child type.
+	 */
 	public <CT extends Composite<?>> List<CT> getTypedChildren(Class<CT> childType) {
 		List<CT> resultList = new ArrayList<CT>();
 		for (Composite<?> child : getChildren()) {
-			if( childType.isInstance(child)) {
+			if (childType.isInstance(child)) {
 				@SuppressWarnings("unchecked")
 				CT childCT = (CT) child;
 				resultList.add(childCT);
+			}
+		}
+		return resultList;
+	}
+
+	/**
+	 * gets a list of all direct and nested children, where the child type is an
+	 * instance of the given child type.
+	 */
+	public <CT extends Composite<?>> List<CT> getAllTypedChildren(Class<CT> childType) {
+		List<CT> resultList = new ArrayList<CT>();
+		for (Composite<?> composite : this) {
+			if (childType.isInstance(composite)) {
+				@SuppressWarnings("unchecked")
+				CT typedComposite = (CT) composite;
+				resultList.add(typedComposite);
 			}
 		}
 		return resultList;
@@ -139,8 +186,7 @@ public class Composite<T> implements Iterable<Composite<?>> {
 			return null;
 		}
 		try {
-			ListIterator<Composite<?>> it = parent.children
-					.listIterator(parent.children.indexOf(this));
+			ListIterator<Composite<?>> it = parent.children.listIterator(parent.children.indexOf(this));
 			it.next();
 			return it.next();
 		} catch (IndexOutOfBoundsException e) {
@@ -161,8 +207,7 @@ public class Composite<T> implements Iterable<Composite<?>> {
 			return null;
 		}
 		try {
-			ListIterator<Composite<?>> it = parent.children
-					.listIterator(parent.children.indexOf(this));
+			ListIterator<Composite<?>> it = parent.children.listIterator(parent.children.indexOf(this));
 			return it.previous();
 		} catch (IndexOutOfBoundsException e) {
 			return null;
@@ -239,6 +284,9 @@ public class Composite<T> implements Iterable<Composite<?>> {
 		return elements(0);
 	}
 
+	/**
+	 * gets an typed iterator casting all children, to the same type as this composites type. 
+	 */
 	public <IT> Iterable<IT> asSingleTypeIterable() {
 		final Iterator<Composite<?>> it = this.iterator();
 		return new Iterable<IT>() {
@@ -272,8 +320,7 @@ public class Composite<T> implements Iterable<Composite<?>> {
 		int level();
 	}
 
-	private class CompositeIteratorImpl implements
-			CompositeIterator<Composite<?>> {
+	private class CompositeIteratorImpl implements CompositeIterator<Composite<?>> {
 
 		/**
 		 * @return the level
@@ -306,8 +353,7 @@ public class Composite<T> implements Iterable<Composite<?>> {
 				List<Composite<?>> childrenList = getChildren();
 				if (childrenList != null && childrenList.size() > 0) {
 					currentChild = 0;
-					childIterator = childrenList.get(currentChild).elements(
-							level + 1);
+					childIterator = childrenList.get(currentChild).elements(level + 1);
 					nextElement = childrenList.get(currentChild);
 					// skip next result, since it the current child again
 					nextElement = childIterator.next();
@@ -325,8 +371,7 @@ public class Composite<T> implements Iterable<Composite<?>> {
 				List<Composite<?>> childrenList = getChildren();
 				if (currentChild < childrenList.size() - 1) {
 					currentChild++;
-					childIterator = childrenList.get(currentChild).elements(
-							level + 1);
+					childIterator = childrenList.get(currentChild).elements(level + 1);
 					nextElement = childrenList.get(currentChild);
 					// skip next result, since it the current child again
 					nextElement = childIterator.next();

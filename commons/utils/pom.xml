@@ -6,7 +6,7 @@
 		<groupId>org.flowr</groupId>
 		<version>0.7.0</version>
 	</parent>
-	<version>0.7.9</version>
+	<version>0.7.10</version>
 	<artifactId>utils</artifactId>
 	<name>flowr common utilities</name>
 	<properties>
