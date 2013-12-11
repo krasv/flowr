@@ -133,7 +133,7 @@ public class FilterChain<T> implements IFilter<T> {
    };
 
    /**
-    * logical OR operation (v1 || v2 || ... vn) return true, if at least on value is true
+    * logical OR operation (v1 || v2 || ... vn) return true, if at least one value is true
     */
    public static final IChainOperator OR = new IChainOperator() {
 
